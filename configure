@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+import argparse
+from pathlib import Path
+from os import uname
+import shutil
+
+
+def config_drv(drv_name: str, drv_source: Path, build_dir: Path):
+    MODULES_DIRECTORY = Path(f'/lib/modules/{uname()[2]}/kernel/drivers/gpu/drm/tiny')
+    drv_builtin = [x.stem for x in list(MODULES_DIRECTORY.glob('*.ko'))]
+
+    if drv_name in drv_builtin:
+        makefile = f"all:\n\t@echo '{drv_name} drm display driver is already installed. No need to compile or install it'"
+    else:
+        shutil.copy(f"{drv_source / drv_name}.c", f"{build_dir}")
+        makefile = f"""KDIR := /lib/modules/`uname -r`/build
+MODULES := {drv_name}.ko
+obj-m += {drv_name}.o
+all:
+\t$(MAKE) -C $(KDIR) M=$(PWD) modules
+clean:
+\t$(MAKE) -C $(KDIR) M=$(PWD) clean"""
+
+    with open(build_dir / "make_drv.mk", 'w') as f:
+        f.write(makefile)
+
+
+def config_overlay(overlay_name: str, overlay_sources: Path, build_dir: Path):
+    makefile = f"all:\n\tdtc -@ -I dts -O dtb -o {build_dir/overlay_name}.dtbo {overlay_sources/overlay_name}.dts"
+    with open(build_dir / "make_overlay.mk", 'w') as f:
+        f.write(makefile)
+
+
+def setup_args(drv_list: list) -> str:
+    parser = argparse.ArgumentParser(description='configure tiny DRM display driver and its overlay')
+    parser.add_argument("drv", choices=drv_list, help="Name of the DRM driver you want to build")
+    args = parser.parse_args()
+    return args.drv
+
+
+if __name__ == "__main__":
+    cwd = Path(__file__).parent.absolute()
+
+    build_dir = (cwd / "build")
+    if(build_dir.exists()):
+        shutil.rmtree(build_dir)
+    build_dir.mkdir()
+
+    drv_name = setup_args([x.stem for x in list(cwd.glob('drivers/*.c'))])
+
+    config_drv(drv_name, (cwd / "drivers"), build_dir)
+    config_overlay(drv_name, (cwd / "overlays"), build_dir)
+
+    makefile = "all:\n\tmake -f make_overlay.mk\n\tmake -f make_drv.mk"
+    with open((build_dir / "Makefile"), "w") as f:
+        f.write(makefile)
