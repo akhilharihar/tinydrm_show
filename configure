@@ -24,13 +24,13 @@ if(build_dir.exists()):
     shutil.rmtree(build_dir)
 build_dir.mkdir()
 
-run_file = build_dir / "compile"
+run_file = build_dir / "inst"
 
 with open(run_file, "w") as f:
     content = """#!/bin/bash
 if [ $UID -ne 0 ]
 then
-    echo "Run this script with sudo privileges."
+    echo "Run this script with sudo."
     exit $E_NOTROOT
 fi\n
 """
@@ -46,7 +46,14 @@ with open(overlay_build_dir / "Makefile", 'w') as f:
     f.write(makefile)
 
 with open(run_file, 'a') as f:
-    content = """\ncd overlay && make && cd ../\n"""
+    content = f"""\ncd overlay
+make
+if [[ -f ./{drv_name}.dtbo ]]
+then
+cp ./{drv_name}.dtbo /boot/overlays/
+fi
+cd ../
+"""
     f.write(content)
 
 # driver config
@@ -69,16 +76,23 @@ clean:
         f.write(makefile)
 
     with open(run_file, 'a') as f:
-        content = """if [[ ! -d /lib/modules/$(uname -r)/build ]]
+        content = f"""if [[ ! -d /lib/modules/$(uname -r)/build ]]
 then
+    apt update
     apt install -y git bc bison flex libssl-dev libncurses5-dev
     wget https://raw.githubusercontent.com/RPi-Distro/rpi-source/master/rpi-source -O /usr/local/bin/rpi-source
     chmod +x /usr/local/bin/rpi-source
     /usr/local/bin/rpi-source -q --tag-update
+    rpi-source
 fi
 
 cd driver
 make
+if [[ -f ./{drv_name}.ko ]]
+then
+cp ./{drv_name}.ko /lib/modules/$(uname -r)/kernel/drivers/gpu/drm/tiny/
+depmod
+fi
 cd ../
 """
         f.write(content)

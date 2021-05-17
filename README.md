@@ -1,9 +1,9 @@
 # tinydrm_show
 
-To get your display working, you'll need a driver specific to your display controller and an overlay.
+This repo automates the process of compiling and installation of tiny DRM display driver with its overlay. A display driver is compiled only when it isn't installed by default in your raspbian installation.
 
-## Setup and Compilation
-Download or clone this repo and run configure script which will create a build directory. cd to build folder and run compile script with sudo privileges.
+## Setup
+Download or clone this repo and run configure script. cd to the generated build folder and run inst script as sudo.
 
 ```shell
 git clone https://github.com/akhilharihar/tinydrm_show.git
@@ -11,45 +11,24 @@ git clone https://github.com/akhilharihar/tinydrm_show.git
 cd tinydrm_show
 ```
 
-Run `./configure -h` to get a list of available drv_name
+Run `./configure -h` to get a list of available drivers
 
 
 ```shell
-./configure drv_name
+./configure driver_name
 
 cd build
 
-sudo ./compile
+sudo ./inst
 ```
 
-## Installation
-
-Copy dtbo file from `overlay` to `/boot/overlays`
-
-If there's a `driver` folder in `build`, copy .ko files from it to tiny DRM driver directory.
-```shell
-sudo cp ./overlay/*.dtbo /boot/overlays/
-
-sudo cp ./driver/*.ko /lib/modules/$(uname -r)/kernel/drivers/gpu/drm/tiny/
-
-sudo depmod
-```
-
-To enable overlay, add `dtoverlay=overlay_name` at the end of `/boot/config.txt`. You'll need to set GL driver to full kms via raspi-config for drm drivers to work properly.
+To enable overlay, add `dtoverlay=driver_name` at the end of `/boot/config.txt`.
 
 Reboot your system for the changes to take effect.
 
 ## Testing
 
-Run `ls /dev/fb*` and `ls /dev/dri/card*`. There should be `/dev/fb1` and `/dev/dri/card1` that are linked to tiny DRM display drivers.
-
-modetest tool - 
-
-```
-sudo apt install libdrm-tests -y
-```
-
-Visit https://github.com/notro/tinydrm/wiki/Development#modetest for instructions on how to use it.
+https://github.com/akhilharihar/tinydrm_show/wiki/Testing-DRM-display
 
 ## References
 - Tiny DRM - https://github.com/notro/tinydrm
