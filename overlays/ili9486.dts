@@ -1,0 +1,76 @@
+/*
+ * Device Tree overlay for MPI3501 based on ili9486 - http://www.lcdwiki.com/3.5inch_RPi_Display
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target = <&spi0>;
+		__overlay__ {
+			status = "okay";
+
+			spidev@0{
+				status = "disabled";
+			};
+
+			spidev@1{
+				status = "disabled";
+			};
+		};
+	};
+
+	fragment@1 {
+		target = <&gpio>;
+		__overlay__ {
+			ili9486_pins: ili9486_pins {
+				brcm,pins = <17 24 25>;
+				brcm,function = <0 1 1>;
+			};
+		};
+	};
+
+	fragment@2 {
+		target = <&spi0>;
+		__overlay__ {
+			/* needed to avoid dtc warning */
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			ili9486: ili9486@0{
+				compatible = "ozzmaker,piscreen";
+				pinctrl-names = "default";
+				pinctrl-0 = <&ili9486_pins>;
+
+				reg = <0>;
+				spi-max-frequency = <16000000>;
+
+				rotation = <0>;
+				reset-gpios = <&gpio 25 0>;
+				dc-gpios = <&gpio 24 0>;
+			};
+
+			ili9486_ts: ili9486-ts@1 {
+				compatible = "ti,ads7846";
+				reg = <1>;
+
+				spi-max-frequency = <2000000>;
+				interrupts = <17 2>; /* high-to-low edge triggered */
+				interrupt-parent = <&gpio>;
+				pendown-gpio = <&gpio 17 0>;
+				ti,swap-xy;
+				ti,x-plate-ohms = /bits/ 16 <100>;
+				ti,pressure-max = /bits/ 16 <255>;
+			};
+		};
+	};
+
+	__overrides__ {
+		speed =		<&ili9486>,"spi-max-frequency:0";
+		rotation =	<&ili9486>,"rotation:0";
+		xohms =		<&ili9486_ts>,"ti,x-plate-ohms;0";
+	};
+};
