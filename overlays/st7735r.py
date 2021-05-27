@@ -21,11 +21,8 @@ class ST7735R(Overlay):
     def dts(self) -> str:
         return """/dts-v1/;
 /plugin/;
-
 / {{
-
     compatible = "brcm,bcm2835";
-
     fragment@0 {{
         target = <&spi0>;
         __overlay__ {{
@@ -37,7 +34,6 @@ class ST7735R(Overlay):
 
         }};
     }};
-
     fragment@1 {{
         target = <&gpio>;
         __overlay__ {{
@@ -47,7 +43,6 @@ class ST7735R(Overlay):
             }};
         }};
     }};
-
     fragment@2 {{
         target = <&spi0>;
         __overlay__ {{
@@ -70,7 +65,6 @@ class ST7735R(Overlay):
             }};
         }};
     }};
-
     fragment@3 {{
         target-path = "/soc";
         __overlay__ {{
@@ -80,7 +74,6 @@ class ST7735R(Overlay):
             }};
         }};
     }};
-
     __overrides__ {{
         speed =		<&st7735r>,"spi-max-frequency:0";
         rotation =	<&st7735r>,"rotation:0";

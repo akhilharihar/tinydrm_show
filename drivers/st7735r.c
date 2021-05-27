@@ -277,6 +277,7 @@ static struct spi_driver st7735r_spi_driver = {
 	.remove = st7735r_remove,
 	.shutdown = st7735r_shutdown,
 };
+
 module_spi_driver(st7735r_spi_driver);
 
 MODULE_DESCRIPTION("Sitronix ST7735R DRM driver");
