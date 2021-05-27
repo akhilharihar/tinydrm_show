@@ -1,34 +1,8 @@
 # tinydrm_show
 
-This repo automates the process of compiling and installation of tiny DRM display driver with its overlay. A display driver is compiled only when it isn't installed by default in your raspbian installation.
+Tiny DRM display drivers and overlays for RPI devices.
 
-## Setup
-Download or clone this repo and run configure script. cd to the generated build folder and run inst script as sudo.
-
-```shell
-git clone https://github.com/akhilharihar/tinydrm_show.git
-
-cd tinydrm_show
-```
-
-Run `./configure -h` to get a list of available drivers
-
-
-```shell
-./configure driver_name
-
-cd build
-
-sudo ./inst
-```
-
-To enable overlay, add `dtoverlay=driver_name` at the end of `/boot/config.txt`.
-
-Reboot your system for the changes to take effect.
-
-## Testing
-
-https://github.com/akhilharihar/tinydrm_show/wiki/Testing-DRM-display
+Wiki - https://github.com/akhilharihar/tinydrm_show/wiki
 
 ## References
 - Tiny DRM - https://github.com/notro/tinydrm
