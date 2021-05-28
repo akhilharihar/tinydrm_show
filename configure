@@ -58,8 +58,8 @@ def overlay_configure(drv_name: str, out: Path) -> bool:
         fname = f"{drv_name}"
         shutil.copy(src / f"{fname}.dts", out)
 
-    installtarget = f"\tif [[ -f ./{drv_name}.dtbo ]]; then \\\n"
-    installtarget += f"\tcp ./{drv_name}.dtbo /boot/overlays/ ; \\\n\tfi\n"
+    installtarget = f"\tif [[ -f ./{fname}.dtbo ]]; then \\\n"
+    installtarget += f"\tcp ./{fname}.dtbo /boot/overlays/ ; \\\n\tfi\n"
 
     with open(out / "Makefile", "w") as f:
         makefile = f"SHELL := /bin/bash\nall:\n\tdtc -@ -I dts -O dtb -o {out/fname}.dtbo {out / fname}.dts\n"
